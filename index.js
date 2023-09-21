@@ -3,15 +3,25 @@ const EventEmitter = require("events");
 const trafficLights = new EventEmitter();
 
 //Array and index for array to hold colors
-const lightColors = ['Green', 'Yellow', 'Red'];
+const lightColors = ['Red', 'Green', 'Yellow'];
 let currentLightIndex = 0; //default is set to the index for Red
 
 function changeLights() {
     trafficLights.emit('changeColor', lightColors[currentLightIndex]);
-    console.log("Current Light: ", lightColors[currentLightIndex]);
-    currentLightIndex++;
-    if(currentLightIndex == 3){ currentLightIndex = 0;}
+    // console.log("Current Light: ", lightColors[currentLightIndex]);
+
+    let delay = 5000;
+    if(lightColors[currentLightIndex] === 'Yellow'){
+        delay = 2000;
+    }
+
+    setTimeout(() => {
+        currentLightIndex = (currentLightIndex + 1) % 3;
+        changeLights();
+    }, delay);
 }
+
+changeLights();
 
 
 
@@ -35,8 +45,8 @@ function changeLights() {
 
 // EventEmitter function
 trafficLights.on('changeColor', (color) => {
-    //console.log('Current Light: ', color);
+    console.log('Current Light: ', color);
 })
 
-//Start
-console.log("Current Light: ", lightColors[2]);
+//Initial Statement
+console.log("Current Light: ", lightColors[0]);
