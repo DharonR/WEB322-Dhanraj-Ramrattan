@@ -1,8 +1,8 @@
 # WEB322 Assignment 2 README
 
-### Student Name: Dharon Ramrattan
-### Student Number: 132650177
-### Section: WEB322NFF
+##### Student Name: Dharon Ramrattan
+##### Student Number: 132650177
+##### Section: WEB322NFF
 
 ## How to run locally
 
