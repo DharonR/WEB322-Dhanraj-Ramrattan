@@ -9,7 +9,6 @@
 1. Clone this repository:
    ```bash
    git clone https://github.com/DharonR/WEB322-Dhanraj-Ramrattan.git
-   git checkout -b assgn-two 
 2. Install dependencies:
     ```bash
     npm install
