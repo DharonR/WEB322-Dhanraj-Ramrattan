@@ -1,4 +1,4 @@
-# WEB322 Assignment 2 README
+# WEB322 Assignment README
 
 ##### Student Name: Dharon Ramrattan
 ##### Student Number: 132650177
