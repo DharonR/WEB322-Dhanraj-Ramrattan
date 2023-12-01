@@ -3,6 +3,8 @@ const apiRoutes = express.Router();
 const itemsPerPage = 25;
 const UsersService = require("../services/users.service");
 const ProductsService = require("../services/products.service");
+const OrdersService = require("../services/orders.service");
+
 
 
 
@@ -15,7 +17,7 @@ apiRoutes.get("/users", (req, res) => {
     UsersService.findAll().length
   );
   const currentPageData = UsersService.findAll().slice(startIndex, endIndex);
-  res.render("list", { users: currentPageData });
+  res.json({ currentPageData });
 });
 
 apiRoutes.get("/users/:id", (req, res) => {
@@ -23,7 +25,7 @@ apiRoutes.get("/users/:id", (req, res) => {
   const user = UsersService.findById(userId);
 
   if (user) {
-    res.render("detail", { user });
+    res.json({ user });
   } else {
     res.status(404).send("User not found");
   }
@@ -55,7 +57,7 @@ apiRoutes.get("/products", (req, res) => {
     ProductsService.findAll().length
   );
   const currentPageData = ProductsService.findAll().slice(startIndex, endIndex);
-  res.render("productList", { products: currentPageData });
+  res.json({ products: currentPageData });
   //res.json(ProductsService.findAll());
 });
 
@@ -64,7 +66,7 @@ apiRoutes.get("/products/:id", (req, res) => {
   const product = ProductsService.findById(productId);
 
   if (product) {
-    res.render("product", { product });
+    res.json({ product });
   } else {
     res.status(404).send("User not found");
   }
@@ -102,5 +104,36 @@ apiRoutes.post("/login", (req, res) => {
     res.status(404).json({ isAuthenticated: true});
   }
 });
+
+
+// Order Routes
+
+apiRoutes.get('/orders', (req, res) => {
+  res.json({orders});
+});
+
+apiRoutes.get("/orders/:id", (req, res) => {
+  const orderId = req.params.id;
+  const order = OrdersService.findById(orderId);
+
+  if (order) {
+    res.json({ order });
+  } else {
+    res.status(404).send("Order not found");
+  }
+});
+
+apiRoutes.delete("/orders/:id", (req, res) => {
+  const orderId = req.params.id;
+  const order = OrdersService.findById(orderId);
+
+  if (order) {
+    res.json({ success: true, message: "Order deleted successfully" });
+  } else {
+    res.status(404).json({ error: "Order not found" });
+  }
+});
+
+apiRoutes.post("/orders", (req, res) => {});
 
 module.exports = apiRoutes;

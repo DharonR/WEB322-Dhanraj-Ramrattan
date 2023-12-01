@@ -1,4 +1,4 @@
-const productData = require("../data/fakeProducts.json");
+const productData = require("../models/product");
 
 class ProductsService {
   static findAll() {

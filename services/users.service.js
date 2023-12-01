@@ -1,4 +1,4 @@
-const userData = require("../data/fakeUsers.json");
+const userData = require("../models/user");
 
 class UsersService {
   static findAll() {
