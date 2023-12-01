@@ -1,16 +1,24 @@
-const userData = require("../models/user");
+const User = require('../models/user');
 
 class UsersService {
-  static findAll() {
-    return userData;
+  static async findAll() {
+    try {
+      const users = await User.find();
+      return users;
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw error;
+    }
   }
 
-  static findById(id) {
-    const user = userData.find((user) => {
-      return user.id === parseInt(id);
-    });
-
-    return user;
+  static async findById(id) {
+    try {
+      const user = await User.findById(id);
+      return user;
+    } catch (error) {
+      console.error(`Error fetching user with id ${id}:`, error);
+      throw error;
+    }
   }
 }
 
