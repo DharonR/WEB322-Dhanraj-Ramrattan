@@ -6,7 +6,6 @@ class ProductsService {
       const products = await Product.find();
       return products;
     } catch (error) {
-      console.error("Products not Found", error);
       throw error;
     }
   }
@@ -16,7 +15,6 @@ class ProductsService {
       const product = await Product.findById(id);
       return product;
     } catch (error) {
-      console.error(`Product not Found.`, error);
       throw error;
     }
   }

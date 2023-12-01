@@ -1,6 +1,5 @@
 const express = require("express");
 const apiRoutes = express.Router();
-const itemsPerPage = 25;
 const UsersService = require("../services/users.service");
 const ProductsService = require("../services/products.service");
 const OrdersService = require("../services/orders.service");
@@ -13,7 +12,6 @@ apiRoutes.get("/users", async (req, res) => {
   try {
     res.json({ users: await UsersService.findAll() });
   } catch (error) {
-    console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -21,7 +19,12 @@ apiRoutes.get("/users", async (req, res) => {
 apiRoutes.get("/users/:id", async (req, res) => {
   try {
     const userId = req.params.id;
-    const user = await UsersService.findById(userId);
+    const user = await UsersService.findById(userId)
+    .map(async (user) => ({
+      ...user.toObject(),
+      orders: await Order.findByUserId(userId),
+    }))
+    ;
 
     if (user) {
       res.json({ user });
@@ -60,7 +63,6 @@ apiRoutes.get("/products", async (req, res) => {
   try {
     res.json({ products: await ProductsService.findAll() });
   } catch (error) {
-    console.error('Error fetching products:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -123,9 +125,14 @@ apiRoutes.post("/login", (req, res) => {
 
 apiRoutes.get("/orders", async (req, res) => {
   try {
-    res.json({ orders: await OrdersService.findAll() });
+    res.json({ orders: await OrdersService.findAll()
+      .map(async (order) => ({
+        ...order.toObject(),
+        user: await User.findById(order.userId).select('username'),
+        product: await Product.findById(order.product).select('name'),
+      }))
+     });
   } catch (error) {
-    console.error('Error fetching orders:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -135,7 +142,13 @@ apiRoutes.get("/orders", async (req, res) => {
 apiRoutes.get("/orders/:id", async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await OrdersService.findById(orderId);
+    const order = await OrdersService.findById(orderId)
+    .map(async (order) => ({
+      ...order.toObject(),
+      userId: await User.findById(order.userId).select('id'),
+      productId: await Product.findById(order.productId).select('id'),
+    }))
+    ;
 
     if (order) {
       res.json({ order });
