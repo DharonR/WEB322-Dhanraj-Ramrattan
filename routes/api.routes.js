@@ -125,13 +125,15 @@ apiRoutes.post("/login", (req, res) => {
 
 apiRoutes.get("/orders", async (req, res) => {
   try {
-    res.json({ orders: await OrdersService.findAll()
-      .map(async (order) => ({
+    const orders = await OrdersService.findAll();
+    const populatedOrders = await Promise.all(
+      orders.map(async (order) => ({
         ...order.toObject(),
-        user: await User.findById(order.userId).select('username'),
-        product: await Product.findById(order.product).select('name'),
+        userId: await User.findById(order.userId).select('id'),
+        productId: await Product.findById(order.productId).select('id'),
       }))
-     });
+    );
+    res.json({ orders: populatedOrders });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
