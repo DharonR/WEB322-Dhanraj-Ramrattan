@@ -33,7 +33,7 @@ apiRoutes.get("/users/:id", async (req, res) => {
     const user = await UsersService.findById(req.params.id)
     .map(async (user) => ({
       ...user.toObject(),
-      orders: await Order.findByUserId(userId),
+      orders: await Order.findByUserId(req.params.id),
     }));
     if (user) {
       res.render("detail", { user });
