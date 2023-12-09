@@ -1,4 +1,5 @@
 const Order = require('../models/order');
+const User = require('../models/user')
 
 class OrdersService {
   static async findAll() {
@@ -12,8 +13,12 @@ class OrdersService {
 
   static async findByUserId(id) {
     try {
-      const order = await Order.find({ userId: id });
-      return order;
+      const user = await User.findOne({ id });
+      if (!user) {
+        return [];
+      }
+      const orders = await Order.find({ userId: user._id });
+      return orders;
     } catch (error) {
       throw error;
     }

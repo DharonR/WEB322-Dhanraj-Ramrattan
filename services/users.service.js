@@ -12,7 +12,7 @@ class UsersService {
 
   static async findById(id) {
     try {
-      const user = await User.findById(id);
+      const user = await User.findOne({ id: id });
       return user;
     } catch (error) {
       throw error;
