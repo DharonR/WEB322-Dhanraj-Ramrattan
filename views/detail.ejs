@@ -10,14 +10,22 @@
   <%- include('layouts/header', { title: 'User Details' }) %>
   <div class="container">
     <h1 class="mt-4">User Details</h1>
-    <div class="card mt-4" style="width: 80vh; height: 80vh;">
+    <div class="card mt-4">
       <div class="card-body">
         <h2 class="card-title"><%= user.firstName %> <%= user.lastName %></h2>
         <p class="card-text"><strong>Email:</strong> <%= user.email %></p>
         <p class="card-text"><strong>Date of Birth:</strong> <%= user.dob %></p>
         <p class="card-text"><strong>Company:</strong> <%= user.company %></p>
         <p class="card-text"><strong>Phone:</strong> <%= user.phone %></p>
-        <a href="/list" class="btn btn-primary mt-3">Back to List</a>
+        <ul class="list-group mt-3">
+          <li class="list-group-item list-group-item-info"><strong>Orders:</strong></li>
+          <% user.orders.forEach(order => { %>
+            <li class="list-group-item">
+              <a href="/api/orders/<%= order %>">Order <%= order %></a>
+            </li>
+          <% }); %>
+        </ul>
+        <a href="/users" class="btn btn-primary mt-3">Back to User List</a>
       </div>
     </div>
   </div>
