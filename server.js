@@ -22,10 +22,7 @@ db.on('error', (error) => {
 
 db.once('open', () => {
   console.log('Connected to MongoDB');
-  // Start Server after connecting to database to work with Cyclic
-  app.listen(3000, () => {
-  console.log("listening for requests");
-});
+  
 });
 
 
@@ -44,7 +41,7 @@ app.use((err, req, res, next) => {
   res.status(500).send("SERVER ERROR");
 });
 
-// // Server
-// app.listen(3000, () => {
-//   console.log("Server started on http://localhost:3000");
-// });
+// Server
+app.listen(3000, () => {
+  console.log("Server started on http://localhost:3000");
+});
