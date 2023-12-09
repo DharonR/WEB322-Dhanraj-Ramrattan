@@ -1,8 +1,11 @@
 const express = require("express");
 const apiRoutes = express.Router();
+const itemsPerPage = 25;
 const UsersService = require("../services/users.service");
 const ProductsService = require("../services/products.service");
 const OrdersService = require("../services/orders.service");
+const AuthenticationService = require("../services/authentication.service");
+
 
 
 
@@ -10,32 +13,37 @@ const OrdersService = require("../services/orders.service");
 // User Routes
 apiRoutes.get("/users", async (req, res) => {
   try {
-    res.json({ users: await UsersService.findAll() });
+    const users = await UsersService.findAll();
+    if (users.length === 0) {
+      res.render("list", { users: [] });
+      return;
+    }
+    const page = req.query.page || 1;
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, users.length);
+    const currentPageData = users.slice(startIndex, endIndex);
+    res.render("list", { users: currentPageData });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
 apiRoutes.get("/users/:id", async (req, res) => {
   try {
-    const userId = req.params.id;
-    const user = await UsersService.findById(userId)
+    const user = await UsersService.findById(req.params.id)
     .map(async (user) => ({
       ...user.toObject(),
       orders: await Order.findByUserId(userId),
-    }))
-    ;
-
+    }));
     if (user) {
-      res.json({ user });
+      res.render("detail", { user });
     } else {
       res.status(404).send("User not Found");
     }
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
-);
+});
 
 apiRoutes.delete("/users/:id", async (req, res) => {
   try {
@@ -52,7 +60,16 @@ apiRoutes.delete("/users/:id", async (req, res) => {
   }
 });
 
-apiRoutes.post("/users", (req, res) => {});
+apiRoutes.post("/users", async (req, res) => {
+  try {
+    const userData = req.body;
+    const newUser = await User.create(userData);
+
+    res.render("detail", { user: await UsersService.findById(userData.id) });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 
@@ -61,7 +78,16 @@ apiRoutes.post("/users", (req, res) => {});
 //Product Routes
 apiRoutes.get("/products", async (req, res) => {
   try {
-    res.json({ products: await ProductsService.findAll() });
+    const products = await ProductsService.findAll();
+    if (products.length === 0) {
+      res.render("productList", { products: [] });
+      return;
+    }
+    const page = req.query.page || 1;
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, products.length);
+    const currentPageData = products.slice(startIndex, endIndex);
+    res.render("productList", { products: currentPageData });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
@@ -73,7 +99,7 @@ apiRoutes.get("/products/:id", async (req, res) => {
     const product = await ProductsService.findById(productId);
 
     if (product) {
-      res.json({ product });
+      res.render("product", { product: product });
     } else {
       res.status(404).send("Product not Found");
     }
@@ -98,7 +124,21 @@ apiRoutes.delete("/products/:id", async (req, res) => {
   }
 });
 
-apiRoutes.post("/products", (req, res) => {});
+apiRoutes.post('/products', async (req, res) => {
+  try {
+    const { name, isbm, price, description } = req.body;
+    const newProduct = new Product({
+      name,
+      isbm,
+      price,
+      description,
+    });
+    const savedProduct = await newProduct.save();
+    res.status(201).render("product", {product : savedProduct});
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 
@@ -110,16 +150,21 @@ apiRoutes.get("/login", (req, res) => {
   res.render("login");
 });
 
-apiRoutes.post("/login", (req, res) => {
-  const { username, password } = req.body;
-  const user = AuthenticationService.authenticate(username, password);
-  if (user) {
-    res.json({ isAuthenticated: true});
-  } else {
-    res.status(404).json({ isAuthenticated: true});
+apiRoutes.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await AuthenticationService.authenticate(username, password);
+
+    if (user) {
+      res.redirect("/users");
+    } else {
+      res.redirect("/login?error=authentication");
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.redirect("/login?error=internal");
   }
 });
-
 
 // Order Routes
 
@@ -129,11 +174,19 @@ apiRoutes.get("/orders", async (req, res) => {
     const populatedOrders = await Promise.all(
       orders.map(async (order) => ({
         ...order.toObject(),
-        userId: await User.findById(order.userId).select('id'),
-        productId: await Product.findById(order.productId).select('id'),
+        userId: await UsersService.findById(order.userId),
+        productId: await ProductsService.findById(order.productId),
       }))
     );
-    res.json({ orders: populatedOrders });
+    if (populatedOrders.length === 0) {
+      res.render("orderList", { orders: [] });
+      return;
+    }
+    const page = req.query.page || 1;
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, populatedOrders.length);
+    const currentPageData = populatedOrders.slice(startIndex, endIndex);
+    res.render("orderList", { orders: currentPageData });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }

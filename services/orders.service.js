@@ -12,8 +12,8 @@ class OrdersService {
 
   static async findByUserId(id) {
     try {
-      const orders = await Order.find({ userId: id });
-      return orders;
+      const order = await Order.find({ userId: id });
+      return order;
     } catch (error) {
       throw error;
     }

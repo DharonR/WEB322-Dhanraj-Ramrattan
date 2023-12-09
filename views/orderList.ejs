@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order List</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .list-container {
+      height: 80vh;
+      overflow-y: scroll;
+    }
+    .order-id {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+    <%- include('layouts/header', { title: 'Order List' }) %>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h1>Order List</h1>
+      </div>
+    </div>
+    <div class="row list-container">
+      <ul class="list-group col-12">
+        <% orders.forEach((order, index) => { %>
+          <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span class="order-id">Order #<%= index + 1 %></span>
+            <div>
+              <% if (order.userId) { %>
+                <% const userLink = `/api/users/${order.userId}`; %>
+                <p>User: <a href="<%= userLink %>"><%= order.userId.firstName %> <%= order.userId.lastName %></a></p>
+              <% } else { %>
+                <p>User: N/A</p>
+              <% } %>
+              <% if (order.productId) { %>
+                <% const productLink = `/api/products/${order.productId}`; %>
+                <p>Product: <a href="<%= productLink %>"><%= order.productId.name %></a></p>
+              <% } else { %>
+                <p>Product: N/A</p>
+              <% } %>
+            </div>
+            <p>Quantity: <%= order.quantity %></p>
+          </li>
+        <% }); %>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,18 +1,19 @@
-const UsersService = require('../services/users.service'); // Adjust the path based on your actual file structure
+const UsersService = require("../services/users.service"); 
 
 class AuthenticationService {
-  static async authenticate(username, password) {
+  async authenticate(username, password) {
     try {
-      if (username === 'admin' && password === 'password') {
-        return { username: 'admin', isAdmin: true };
+      if (username === "admin" && password === "password") {
+        return { username: "admin", isAdmin: true };
       }
-      const user = await UsersService.findAll({ email: username, password: password, isAdmin: true});
-      return user.length > 0 ? user[0] : null;
+
+      const users = await UsersService.findAll({ email: username, password: password, isAdmin: true });
+
+      return users && users.length > 0 ? users[0] : null;
     } catch (error) {
-      console.error(error);
       throw error;
     }
   }
 }
 
-module.exports = AuthenticationService;
+module.exports = new AuthenticationService();

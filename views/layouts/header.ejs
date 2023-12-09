@@ -26,7 +26,13 @@
         <a class="nav-link" href="/login">Login</a>
       </li>
       <li class="nav-item <%= title === 'User List' ? 'active' : '' %>">
-        <a class="nav-link" href="/list">User List</a>
+        <a class="nav-link" href="/users">User List</a>
+      </li>
+      <li class="nav-item <%= title === 'Product List' ? 'active' : '' %>">
+        <a class="nav-link" href="/api/products">Product List</a>
+      </li>
+      <li class="nav-item <%= title === 'Order List' ? 'active' : '' %>">
+        <a class="nav-link" href="/api/orders">Order List</a>
       </li>
     </ul>
   </div>
