@@ -22,7 +22,9 @@ db.on('error', (error) => {
 
 db.once('open', () => {
   console.log('Connected to MongoDB');
-  
+  app.listen(3000, () => {
+    console.log("listening for requests");
+  });
 });
 
 
@@ -42,6 +44,4 @@ app.use((err, req, res, next) => {
 });
 
 // Server
-app.listen(3000, () => {
-  console.log("Server started on http://localhost:3000");
-});
+
