@@ -6,10 +6,6 @@ const ProductsService = require("../services/products.service");
 const OrdersService = require("../services/orders.service");
 const AuthenticationService = require("../services/authentication.service");
 
-
-
-
-
 // User Routes
 apiRoutes.get("/users", async (req, res) => {
   try {
@@ -30,20 +26,25 @@ apiRoutes.get("/users", async (req, res) => {
 
 apiRoutes.get("/users/:id", async (req, res) => {
   try {
-    const user = await UsersService.findById(req.params.id)
-    .map(async (user) => ({
-      ...user.toObject(),
-      orders: await Order.findByUserId(req.params.id),
-    }));
+    const userId = req.params.id;
+    console.log("DISPLAYING USER ID:", userId);
+    const user = await UsersService.findById(userId);
+
     if (user) {
-      res.render("detail", { user });
+      console.log("User found:", user);
+      const orders = await OrdersService.findByUserId(userId);
+      console.log("Orders:", orders);
+      res.render("detail", { user: { ...user.toObject(), orders } });
     } else {
+      console.log("User not found");
       res.status(404).send("User not Found");
     }
   } catch (error) {
+    console.error("Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 apiRoutes.delete("/users/:id", async (req, res) => {
   try {
@@ -67,13 +68,9 @@ apiRoutes.post("/users", async (req, res) => {
 
     res.render("detail", { user: await UsersService.findById(userData.id) });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-
-
-
 
 //Product Routes
 apiRoutes.get("/products", async (req, res) => {
@@ -89,7 +86,7 @@ apiRoutes.get("/products", async (req, res) => {
     const currentPageData = products.slice(startIndex, endIndex);
     res.render("productList", { products: currentPageData });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -106,8 +103,7 @@ apiRoutes.get("/products/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
-);
+});
 
 apiRoutes.delete("/products/:id", async (req, res) => {
   try {
@@ -124,7 +120,7 @@ apiRoutes.delete("/products/:id", async (req, res) => {
   }
 });
 
-apiRoutes.post('/products', async (req, res) => {
+apiRoutes.post("/products", async (req, res) => {
   try {
     const { name, isbm, price, description } = req.body;
     const newProduct = new Product({
@@ -134,15 +130,11 @@ apiRoutes.post('/products', async (req, res) => {
       description,
     });
     const savedProduct = await newProduct.save();
-    res.status(201).render("product", {product : savedProduct});
+    res.status(201).render("product", { product: savedProduct });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-
-
-
 
 // Login Routes
 
@@ -184,27 +176,25 @@ apiRoutes.get("/orders", async (req, res) => {
     }
     const page = req.query.page || 1;
     const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, populatedOrders.length);
+    const endIndex = Math.min(
+      startIndex + itemsPerPage,
+      populatedOrders.length
+    );
     const currentPageData = populatedOrders.slice(startIndex, endIndex);
     res.render("orderList", { orders: currentPageData });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-
 
 apiRoutes.get("/orders/:id", async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await OrdersService.findById(orderId)
-    .map(async (order) => ({
+    const order = await OrdersService.findById(orderId).map(async (order) => ({
       ...order.toObject(),
-      userId: await User.findById(order.userId).select('id'),
-      productId: await Product.findById(order.productId).select('id'),
-    }))
-    ;
-
+      userId: await User.findById(order.userId).select("id"),
+      productId: await Product.findById(order.productId).select("id"),
+    }));
     if (order) {
       res.json({ order });
     } else {
@@ -213,8 +203,7 @@ apiRoutes.get("/orders/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
-);
+});
 
 apiRoutes.delete("/orders/:id", async (req, res) => {
   try {

@@ -12,7 +12,7 @@ class ProductsService {
 
   static async findById(id) {
     try {
-      const product = await Product.findById(id);
+      const product = await Product.findOne({ id: id });
       return product;
     } catch (error) {
       throw error;
